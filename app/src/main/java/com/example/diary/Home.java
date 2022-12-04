@@ -25,13 +25,5 @@ public class Home extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void TakePhoto(View view) {
-        Intent intent=new Intent(getApplicationContext(),TakePhoto.class);
-        startActivity(intent);
-    }
 
-    public void ViewPhotos(View view) {
-        Intent intent=new Intent(getApplicationContext(),ViewPhoto.class);
-        startActivity(intent);
-    }
 }
