@@ -27,12 +27,15 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -43,29 +46,38 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 public class WriteDiary extends AppCompatActivity {
     RatingBar ratingBar;
+    EditText titleText;
+    EditText contextText;
     int rate;
     String title,diary;
     ImageView imageView;
     Bitmap bitmap;
     private StorageReference storageReference = null;
-
+    FirebaseFirestore db = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Firebase init
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
-
+        db = FirebaseFirestore.getInstance();
 
         setContentView(R.layout.activity_write_diary);
         getSupportActionBar().setTitle("Write Your Diary");
-        ratingBar=findViewById(R.id.ratingBar);
+
+        //Get value
+        ratingBar = findViewById(R.id.ratingBar);
         imageView = findViewById(R.id.image_view);
+        titleText= findViewById(R.id.title);
+        contextText = findViewById(R.id.diary);
         if (ContextCompat.checkSelfPermission(WriteDiary.this, Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(WriteDiary.this,new String[]{Manifest.permission.CAMERA},101);
         }
@@ -97,8 +109,19 @@ public class WriteDiary extends AppCompatActivity {
         }
     }
     public void CloudSave(View view) {
+
         //This Method will trigger when user click CloudSave Button
-        saveImageCloud(saveImageLocal(bitmap));
+        if(ContextCompat.checkSelfPermission(WriteDiary.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED){
+            String fireBaseFilePath = "images/"+ UUID.randomUUID().toString();
+            //Firestorda , strogedeki dosya ismi tutulur.
+            saveImageCloud(saveImageLocal(bitmap),fireBaseFilePath);
+            saveOnCloud(fireBaseFilePath);
+        }
+        else{
+            ActivityCompat.requestPermissions(WriteDiary.this,new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            },1);
+        }
         Log.d("MOON","Cloud Save Button Clicked");
     }
 
@@ -106,9 +129,31 @@ public class WriteDiary extends AppCompatActivity {
 
 
 
+    public  void saveOnCloud(String fireBaseFilePath){
+        // Create a new user with a first and last name
+        Map<String, Object> user = new HashMap<>();
+        user.put("title", String.valueOf(titleText.getText()));
+        user.put("diary", String.valueOf(contextText.getText()));
+        user.put("rating", rate);
+        user.put("photoUrl",fireBaseFilePath);
 
+// Add a new document with a generated ID
+        db.collection("diary")
+                .add(user)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        //Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        //Log.w(TAG, "Error adding document", e);
+                    }
+                });
 
-
+    }
     public  void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,@NonNull int[] grantResults){
         if(requestCode == 1){
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
@@ -130,9 +175,10 @@ public class WriteDiary extends AppCompatActivity {
         }
     }
 
-    private void saveImageCloud(Uri filePath) {
+    private void saveImageCloud(Uri filePath,String firebaseFilePath) {
         if(filePath != null) {
-            StorageReference ref = storageReference.child("images/"+ UUID.randomUUID().toString());
+//            StorageReference ref = storageReference.child("images/"+ UUID.randomUUID().toString());
+            StorageReference ref = storageReference.child(firebaseFilePath);
             ref.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
