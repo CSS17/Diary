@@ -3,6 +3,7 @@ package com.example.diary;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -11,10 +12,15 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.icu.util.Output;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -23,18 +29,22 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Objects;
 
 public class WriteDiary extends AppCompatActivity {
     RatingBar ratingBar;
     int rate;
     String title,diary;
     ImageView imageView;
-
+    Bitmap bitmap;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,18 +73,43 @@ public class WriteDiary extends AppCompatActivity {
     }
 
     public void LocalSave(View view) {
-        //This Method will trigger when user click Local Save Button
-        Log.d("MOON","Local Save Button Clicked");
+        if(ContextCompat.checkSelfPermission(WriteDiary.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED){
+            saveImage(bitmap);
+        }
+        else{
+            ActivityCompat.requestPermissions(WriteDiary.this,new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            },1);
+        }
     }
     public void CloudSave(View view) {
         //This Method will trigger when user click CloudSave Button
         Log.d("MOON","Cloud Save Button Clicked");
     }
+
+
+
+
+
+
+
+
+    public  void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,@NonNull int[] grantResults){
+        if(requestCode == 1){
+            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                saveImage(bitmap);
+            }else{
+                Toast.makeText(WriteDiary.this,"Please provide permission",Toast.LENGTH_LONG).show();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data){
         super.onActivityResult(requestCode,resultCode,data);
         if(requestCode == 101){
-            Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+            bitmap = (Bitmap) data.getExtras().get("data");
             saveImage(bitmap);
             imageView.setImageBitmap(StringToBitMap(BitMapToString(bitmap)));
         }
@@ -97,31 +132,29 @@ public class WriteDiary extends AppCompatActivity {
             return null;
         }
     }
-    public static void saveImage(Bitmap bitmapImage) {
 
-        File root = new File(Environment.getExternalStorageDirectory(), "Identidata");
 
-        if (!root.exists()) {
-            root.mkdirs();
+
+    public void saveImage(Bitmap bitmap) {
+        Uri images;
+        ContentResolver contentResolver = getContentResolver();
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+            images = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+        }else{
+            images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         }
-
-        File mypath = new File(root,"debug.jpg");
-
-
-        FileOutputStream fos = null;
-
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, "resmin ismi burda agam" + ".jpg");
+        contentValues.put(MediaStore.Images.Media.MIME_TYPE,"images/*");
+        Uri uri = contentResolver.insert(images,contentValues);
         try {
-            fos = new FileOutputStream(mypath);
-            // Use the compress method on the BitMap object to write image to the OutputStream
-            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
-        } catch (Exception e) {
+            OutputStream outputStream = contentResolver.openOutputStream(Objects.requireNonNull(uri));
+            bitmap.compress(Bitmap.CompressFormat.JPEG,100,outputStream);
+            Objects.requireNonNull(outputStream);
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                fos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
+
     }
 }
