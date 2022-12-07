@@ -31,6 +31,12 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,6 +44,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Objects;
+import java.util.UUID;
 
 public class WriteDiary extends AppCompatActivity {
     RatingBar ratingBar;
@@ -45,9 +52,16 @@ public class WriteDiary extends AppCompatActivity {
     String title,diary;
     ImageView imageView;
     Bitmap bitmap;
+    private StorageReference storageReference = null;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+        storageReference = firebaseStorage.getReference();
+
+
         setContentView(R.layout.activity_write_diary);
         getSupportActionBar().setTitle("Write Your Diary");
         ratingBar=findViewById(R.id.ratingBar);
@@ -74,7 +88,7 @@ public class WriteDiary extends AppCompatActivity {
 
     public void LocalSave(View view) {
         if(ContextCompat.checkSelfPermission(WriteDiary.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED){
-            saveImage(bitmap);
+            saveImageLocal(bitmap);
         }
         else{
             ActivityCompat.requestPermissions(WriteDiary.this,new String[]{
@@ -84,6 +98,7 @@ public class WriteDiary extends AppCompatActivity {
     }
     public void CloudSave(View view) {
         //This Method will trigger when user click CloudSave Button
+        saveImageCloud(saveImageLocal(bitmap));
         Log.d("MOON","Cloud Save Button Clicked");
     }
 
@@ -97,7 +112,7 @@ public class WriteDiary extends AppCompatActivity {
     public  void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,@NonNull int[] grantResults){
         if(requestCode == 1){
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                saveImage(bitmap);
+                saveImageLocal(bitmap);
             }else{
                 Toast.makeText(WriteDiary.this,"Please provide permission",Toast.LENGTH_LONG).show();
             }
@@ -110,32 +125,35 @@ public class WriteDiary extends AppCompatActivity {
         super.onActivityResult(requestCode,resultCode,data);
         if(requestCode == 101){
             bitmap = (Bitmap) data.getExtras().get("data");
-            saveImage(bitmap);
-            imageView.setImageBitmap(StringToBitMap(BitMapToString(bitmap)));
-        }
-    }
-    public String BitMapToString(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] b = baos.toByteArray();
-        String temp = Base64.encodeToString(b, Base64.DEFAULT);
-        return temp;
-    }
-    public Bitmap StringToBitMap(String encodedString) {
-        try {
-            byte[] encodeByte = Base64.decode(encodedString, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0,
-                    encodeByte.length);
-            return bitmap;
-        } catch (Exception e) {
-            e.getMessage();
-            return null;
+            saveImageLocal(bitmap);
+            imageView.setImageBitmap(bitmap);
         }
     }
 
+    private void saveImageCloud(Uri filePath) {
+        if(filePath != null) {
+            StorageReference ref = storageReference.child("images/"+ UUID.randomUUID().toString());
+            ref.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            //databaseReference.push().setValue(uri.toString());
+                            Toast.makeText(WriteDiary.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(WriteDiary.this, "Image uploaded failed", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
 
-
-    public void saveImage(Bitmap bitmap) {
+    public Uri saveImageLocal(Bitmap bitmap) {
         Uri images;
         ContentResolver contentResolver = getContentResolver();
 
@@ -145,7 +163,7 @@ public class WriteDiary extends AppCompatActivity {
             images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         }
         ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, "resmin ismi burda agam" + ".jpg");
+        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, "resmin_ismi_burda_agam" + ".jpg");
         contentValues.put(MediaStore.Images.Media.MIME_TYPE,"images/*");
         Uri uri = contentResolver.insert(images,contentValues);
         try {
@@ -155,6 +173,7 @@ public class WriteDiary extends AppCompatActivity {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        return uri;
 
     }
 }
