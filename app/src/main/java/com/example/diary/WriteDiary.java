@@ -30,6 +30,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -55,6 +56,7 @@ public class WriteDiary extends AppCompatActivity {
     RatingBar ratingBar;
     EditText titleText;
     EditText contextText;
+    TextView status;
     int rate;
     String title,diary;
     ImageView imageView;
@@ -78,6 +80,7 @@ public class WriteDiary extends AppCompatActivity {
         imageView = findViewById(R.id.image_view);
         titleText= findViewById(R.id.title);
         contextText = findViewById(R.id.diary);
+        status=findViewById(R.id.status);
         if (ContextCompat.checkSelfPermission(WriteDiary.this, Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(WriteDiary.this,new String[]{Manifest.permission.CAMERA},101);
         }
@@ -101,6 +104,8 @@ public class WriteDiary extends AppCompatActivity {
     public void LocalSave(View view) {
         if(ContextCompat.checkSelfPermission(WriteDiary.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED){
             saveImageLocal(bitmap);
+            status.setText("Saved On Local!");
+            status.setVisibility(View.VISIBLE);
         }
         else{
             ActivityCompat.requestPermissions(WriteDiary.this,new String[]{
@@ -116,6 +121,8 @@ public class WriteDiary extends AppCompatActivity {
             //Firestorda , strogedeki dosya ismi tutulur.
             saveImageCloud(saveImageLocal(bitmap),fireBaseFilePath);
             saveOnCloud(fireBaseFilePath);
+            status.setText("Saved On Cloud!");
+            status.setVisibility(View.VISIBLE);
         }
         else{
             ActivityCompat.requestPermissions(WriteDiary.this,new String[]{
@@ -216,6 +223,7 @@ public class WriteDiary extends AppCompatActivity {
             OutputStream outputStream = contentResolver.openOutputStream(Objects.requireNonNull(uri));
             bitmap.compress(Bitmap.CompressFormat.JPEG,100,outputStream);
             Objects.requireNonNull(outputStream);
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
