@@ -113,7 +113,7 @@ public class WriteDiary extends AppCompatActivity {
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
-               rate=(int)v;
+                rate=(int)v;
                 Log.d("MOON","your rate is "+rate);
             }
         });
@@ -143,7 +143,7 @@ public class WriteDiary extends AppCompatActivity {
 
         //This Method will trigger when user click CloudSave Button
         if(ContextCompat.checkSelfPermission(WriteDiary.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED){
-            String fireBaseFilePath =  UUID.randomUUID().toString();
+            String fireBaseFilePath = "images/"+ UUID.randomUUID().toString();
             //Firestorda , strogedeki dosya ismi tutulur.
             saveImageCloud(saveImageLocal(bitmap),fireBaseFilePath);
             saveOnCloud(fireBaseFilePath);
