@@ -16,6 +16,8 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.icu.util.Output;
@@ -63,10 +65,34 @@ public class WriteDiary extends AppCompatActivity {
     Bitmap bitmap;
     private StorageReference storageReference = null;
     FirebaseFirestore db = null;
+    private SQLiteDatabase localDatabase;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //SQLite init
+        try {
+            localDatabase = this.openOrCreateDatabase("Diary",MODE_PRIVATE,null);
+            localDatabase.execSQL("CREATE TABLE IF NOT EXISTS Diary(Title VARCHAR,Diary VARCHAR,Rating VARCHAR,Id VARCHAR,Filename VARCHAR);");
+            localDatabase.execSQL("INSERT INTO Diary VALUES('admin','admin','RATE','id','filenamexx');");
+            Cursor resultSet = localDatabase.rawQuery("Select * from TutorialsPoint",null);
+            resultSet.moveToFirst();
+            String username = resultSet.getString(0);
+            String password = resultSet.getString(1);
+            String ratinggg = resultSet.getString(2);
+            String id = resultSet.getString(3);
+            String filepath = resultSet.getString(4);
+
+            Log.d("username",username);
+            Log.d("Password",password);
+            Log.d("filepath",filepath);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
         //Firebase init
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();

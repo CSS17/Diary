@@ -5,6 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ReadDiary">
+    <ImageView
+        android:id="@+id/fetch_image"
+        android:layout_width="122dp"
+        android:layout_height="127dp"
+        android:layout_marginTop="56dp"
+
+        android:layout_marginBottom="40dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <TextView
         android:layout_width="wrap_content"
