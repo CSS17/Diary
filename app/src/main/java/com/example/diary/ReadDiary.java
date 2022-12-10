@@ -3,6 +3,8 @@ package com.example.diary;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,12 +22,14 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class ReadDiary extends AppCompatActivity {
     FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
-
+    ArrayList<String> edittxtArray=new ArrayList<>();//edittext
+    ArrayList<Bitmap> imageBitMapArray=new ArrayList<>();//edittext
     ImageView imageView;
-
+    RecyclerView recyclerView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +38,11 @@ public class ReadDiary extends AppCompatActivity {
         System.out.println(Environment.getExternalStorageDirectory());
         imageView=(ImageView)findViewById(R.id.fetch_image);
         fetchImageCloud();
+        recyclerView=findViewById(R.id.recyclerView);
+        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+
         //fetchImageLocal();
     }
     public void fetchImageCloud(){
@@ -46,6 +55,17 @@ public class ReadDiary extends AppCompatActivity {
             @Override
             public void onSuccess(byte[] bytes) {
                 Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                //Load arrarys
+                imageBitMapArray.add(bmp);
+                edittxtArray.add("qweqwe");
+                imageBitMapArray.add(bmp);
+                edittxtArray.add("asadasd");
+
+
+                Adapter adapter =new Adapter(edittxtArray,imageBitMapArray ,ReadDiary.this);
+                recyclerView.setAdapter(adapter);
+
+                System.out.println(edittxtArray.get(0));
                 imageView.setImageBitmap(bmp);
 
             }
