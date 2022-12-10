@@ -51,7 +51,6 @@ public class ReadDiary extends AppCompatActivity {
         setContentView(R.layout.activity_read_diary);
         getSupportActionBar().setTitle("Read Your Diaries");
         imageView=(ImageView)findViewById(R.id.fetch_image);
-        fetchImageCloud("x.jpg");
 
         recyclerView=findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getApplicationContext());
@@ -93,6 +92,7 @@ public class ReadDiary extends AppCompatActivity {
                         firebaseDiaryRatings.add( String.valueOf(document.getData().get("rating")));
                         firebaseDiary.add( String.valueOf(document.getData().get("diary")));
                         firebaseDiaryPhotoUrl.add(String.valueOf(document.getData().get("photoUrl")));
+                        fetchImageCloud(String.valueOf(document.getData().get("photoUrl")),String.valueOf(document.getData().get("title")));
                     } else {
                         System.out.println("document yok");
                         Log.d("TAG", "No such document");
@@ -108,7 +108,7 @@ public class ReadDiary extends AppCompatActivity {
             }
         });
     }
-    public void fetchImageCloud(String photourl){
+    public void fetchImageCloud(String photourl, String title){
         // Create a storage reference from our app
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         StorageReference photoReference= storageReference.child(photourl);
@@ -120,10 +120,7 @@ public class ReadDiary extends AppCompatActivity {
                 Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                 //Load arrarys
                 imageBitMapArray.add(bmp);
-                edittxtArray.add("qweqwe");
-                imageBitMapArray.add(bmp);
-                edittxtArray.add("asadasd");
-
+                edittxtArray.add(title);
 
                 Adapter adapter =new Adapter(edittxtArray,imageBitMapArray ,ReadDiary.this);
                 recyclerView.setAdapter(adapter);
