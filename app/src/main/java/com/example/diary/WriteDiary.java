@@ -113,7 +113,7 @@ public class WriteDiary extends AppCompatActivity {
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
-               rate=(int)v;
+                rate=(int)v;
                 Log.d("MOON","your rate is "+rate);
             }
         });

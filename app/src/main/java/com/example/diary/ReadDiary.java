@@ -61,7 +61,7 @@ public class ReadDiary extends AppCompatActivity {
         File imgFile = new File(path);
         if(imgFile.exists())
         {
-            System.out.println("Dosya var");
+            System.out.println(" Dosya var");
 
             Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             imageView.setImageBitmap(myBitmap);
