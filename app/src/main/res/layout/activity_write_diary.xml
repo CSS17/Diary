@@ -88,7 +88,7 @@
         app:srcCompat="@drawable/ic_baseline_photo_camera_24" />
 
     <ImageView
-        android:id="@+id/image_view"
+        android:id="@+id/image_view_on_write"
         android:layout_width="122dp"
         android:layout_height="127dp"
         android:layout_marginTop="56dp"

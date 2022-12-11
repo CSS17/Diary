@@ -16,8 +16,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.icu.util.Output;
@@ -65,33 +64,12 @@ public class WriteDiary extends AppCompatActivity {
     Bitmap bitmap;
     private StorageReference storageReference = null;
     FirebaseFirestore db = null;
-    private SQLiteDatabase localDatabase;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //SQLite init
-        try {
-            localDatabase = this.openOrCreateDatabase("Diary",MODE_PRIVATE,null);
-            localDatabase.execSQL("CREATE TABLE IF NOT EXISTS Diary(Title VARCHAR,Diary VARCHAR,Rating VARCHAR,Id VARCHAR,Filename VARCHAR);");
-            localDatabase.execSQL("INSERT INTO Diary VALUES('admin','admin','RATE','id','filenamexx');");
-            Cursor resultSet = localDatabase.rawQuery("Select * from TutorialsPoint",null);
-            resultSet.moveToFirst();
-            String username = resultSet.getString(0);
-            String password = resultSet.getString(1);
-            String ratinggg = resultSet.getString(2);
-            String id = resultSet.getString(3);
-            String filepath = resultSet.getString(4);
-
-            Log.d("username",username);
-            Log.d("Password",password);
-            Log.d("filepath",filepath);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+        System.out.println("Craeted");
 
         //Firebase init
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
@@ -103,7 +81,7 @@ public class WriteDiary extends AppCompatActivity {
 
         //Get value
         ratingBar = findViewById(R.id.ratingBar);
-        imageView = findViewById(R.id.image_view);
+        imageView = findViewById(R.id.image_view_on_write);
         titleText= findViewById(R.id.title);
         contextText = findViewById(R.id.diary);
         status=findViewById(R.id.status);
@@ -186,10 +164,12 @@ public class WriteDiary extends AppCompatActivity {
                     }
                 });
 
-    }
-    public  void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,@NonNull int[] grantResults){
+    } public  void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,@NonNull int[] grantResults){
+        System.out.println("onRequestPermission");
         if(requestCode == 1){
+            System.out.println("STATUS CODE 1");
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                System.out.println("BİTMAP CHECKED");
                 saveImageLocal(bitmap);
             }else{
                 Toast.makeText(WriteDiary.this,"Please provide permission",Toast.LENGTH_LONG).show();
@@ -201,14 +181,15 @@ public class WriteDiary extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data){
         super.onActivityResult(requestCode,resultCode,data);
+        System.out.println("on Activity request code  :"  + String.valueOf(requestCode));
         if(requestCode == 101){
             bitmap = (Bitmap) data.getExtras().get("data");
             saveImageLocal(bitmap);
             imageView.setImageBitmap(bitmap);
         }
     }
-
     private void saveImageCloud(Uri filePath,String firebaseFilePath) {
+        firebaseFilePath = firebaseFilePath.split("images/")[1];
         if(filePath != null) {
 //            StorageReference ref = storageReference.child("images/"+ UUID.randomUUID().toString());
             StorageReference ref = storageReference.child(firebaseFilePath);
@@ -242,7 +223,7 @@ public class WriteDiary extends AppCompatActivity {
             images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         }
         ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, "resmin_ismi_burda_agam" + ".jpg");
+        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, "ne" + ".jpeg");
         contentValues.put(MediaStore.Images.Media.MIME_TYPE,"images/*");
         Uri uri = contentResolver.insert(images,contentValues);
         try {
