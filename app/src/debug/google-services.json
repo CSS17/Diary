@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "612271057529",
+    "project_id": "mobilfinal-878aa",
+    "storage_bucket": "mobilfinal-878aa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612271057529:android:59f3e1a83b2b998d7302a8",
+        "android_client_info": {
+          "package_name": "com.example.diary"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "612271057529-bhhh2oq8jcqmaqeoedrdill7jr6nc4ku.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJY5Oemh0oc1Yv_JG7Bb6Uajty0Q8brJs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "612271057529-bhhh2oq8jcqmaqeoedrdill7jr6nc4ku.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
