@@ -50,9 +50,9 @@
 
     <ImageButton
         android:id="@+id/localsave"
-        android:onClick="LocalSave"
         android:layout_width="88dp"
         android:layout_height="74dp"
+        android:onClick="LocalSave"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.591"
@@ -86,6 +86,19 @@
         app:layout_constraintTop_toBottomOf="@+id/ratingBar"
         app:layout_constraintVertical_bias="0.216"
         app:srcCompat="@drawable/ic_baseline_photo_camera_24" />
+
+    <ImageView
+        android:id="@+id/image_view_on_write"
+        android:layout_width="122dp"
+        android:layout_height="127dp"
+        android:layout_marginTop="56dp"
+
+        android:layout_marginBottom="40dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toTopOf="@+id/localsave"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/takephoto"
+        app:layout_constraintTop_toBottomOf="@+id/ratingBar" />
 
     <TextView
         android:id="@+id/textView4"
@@ -127,7 +140,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/textView7"
+        android:id="@+id/status"
         android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
