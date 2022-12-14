@@ -111,7 +111,6 @@ public class ReadDiary extends AppCompatActivity {
     }
     public void fetchImageCloud(String photourl, String title){
         // Create a storage reference from our app
-        photourl = photourl.split("images/")[1];
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         StorageReference photoReference= storageReference.child(photourl);
 

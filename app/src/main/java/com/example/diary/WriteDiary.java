@@ -10,6 +10,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.ContentResolver;
@@ -48,6 +49,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -64,8 +66,9 @@ public class WriteDiary extends AppCompatActivity {
     Bitmap bitmap;
     private StorageReference storageReference = null;
     FirebaseFirestore db = null;
+    DBHelper DB;
 
-
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +78,7 @@ public class WriteDiary extends AppCompatActivity {
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
         db = FirebaseFirestore.getInstance();
-
+        DB=new DBHelper(this);
         setContentView(R.layout.activity_write_diary);
         getSupportActionBar().setTitle("Write Your Diary");
 
@@ -106,16 +109,33 @@ public class WriteDiary extends AppCompatActivity {
     }
 
     public void LocalSave(View view) {
-        if(ContextCompat.checkSelfPermission(WriteDiary.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED){
-            saveImageLocal(bitmap);
-            status.setText("Saved On Local!");
-            status.setVisibility(View.VISIBLE);
+        String photourl = String.valueOf(saveImageLocal(bitmap));
+        System.out.println("Photo url:" + photourl);
+
+        String title=titleText.getText().toString();
+        String body=contextText.getText().toString();
+        LocalDate myObj = null; // Create a date object
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            myObj = LocalDate.now();
+        }
+        System.out.println(myObj); // Display the current date
+        String date=myObj.toString();
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
+                rate=(int)v;
+            }
+        });
+
+        Boolean checkinsertData=DB.InsertData(title,body,rate,date,photourl);
+        System.out.println(String.valueOf(checkinsertData));
+        if(checkinsertData==true){
+            Toast.makeText(WriteDiary.this,"Added to SQLite DB",Toast.LENGTH_SHORT);
         }
         else{
-            ActivityCompat.requestPermissions(WriteDiary.this,new String[]{
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-            },1);
+            Toast.makeText(WriteDiary.this,"Failed to Insert",Toast.LENGTH_SHORT);
         }
+
     }
     public void CloudSave(View view) {
 
@@ -146,7 +166,7 @@ public class WriteDiary extends AppCompatActivity {
         user.put("title", String.valueOf(titleText.getText()));
         user.put("diary", String.valueOf(contextText.getText()));
         user.put("rating", rate);
-        user.put("photoUrl",fireBaseFilePath);
+        user.put("photoUrl",fireBaseFilePath.split("images/")[1]);
 
 // Add a new document with a generated ID
         db.collection("diary")
@@ -223,8 +243,8 @@ public class WriteDiary extends AppCompatActivity {
             images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         }
         ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, "ne" + ".jpeg");
-        contentValues.put(MediaStore.Images.Media.MIME_TYPE,"images/*");
+        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, "q" + ".jpeg");
+        contentValues.put(MediaStore.Images.Media.MIME_TYPE,"/*");
         Uri uri = contentResolver.insert(images,contentValues);
         try {
             OutputStream outputStream = contentResolver.openOutputStream(Objects.requireNonNull(uri));
@@ -236,5 +256,17 @@ public class WriteDiary extends AppCompatActivity {
         }
         return uri;
 
+    }
+    public void StoreImage(View view){
+        if(ContextCompat.checkSelfPermission(WriteDiary.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED){
+            saveImageLocal(bitmap);
+            status.setText("Saved On Local!");
+            status.setVisibility(View.VISIBLE);
+        }
+        else{
+            ActivityCompat.requestPermissions(WriteDiary.this,new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            },1);
+        }
     }
 }
