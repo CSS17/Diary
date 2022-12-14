@@ -5,6 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.ImageView;
+import android.widget.RatingBar;
+import android.widget.TextView;
+import android.graphics.Matrix;
+
+
 
 public class AdvancedReadActivity extends AppCompatActivity {
 
@@ -12,7 +17,15 @@ public class AdvancedReadActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.advanced_read);
+        Matrix matrix = new Matrix();
+        getSupportActionBar().setTitle("Here is your Diary");
         ImageView imageView = findViewById(R.id.image_view_on_advanced);
+        TextView viewdate,viewtitle,viewbody;
+        RatingBar ratingBar;
+        viewdate=findViewById(R.id.title);
+        viewtitle=findViewById(R.id.title);
+        viewbody=findViewById(R.id.body);
+        ratingBar=findViewById(R.id.ratingBar);
         String rate,diary,date,title;
         Bitmap image;
         if (savedInstanceState == null) {
@@ -59,13 +72,16 @@ public class AdvancedReadActivity extends AppCompatActivity {
             title= (String) savedInstanceState.getSerializable("title");
         }
 
-        System.out.println("Retrieve" + rate);
-        System.out.println("Retrieve" + date);
-        System.out.println("Retrieve" + diary);
-        System.out.println("Retrieve" + title);
+
         Bitmap imageBitMap = (Bitmap) getIntent().getExtras().get("bitmap");
+
         System.out.println(String.valueOf(imageBitMap));
         imageView.setImageBitmap(imageBitMap);
+        viewtitle.setText(title);
+        viewbody.setText(diary);
+        viewdate.setText(date);
+        ratingBar.setRating(Float.parseFloat(rate));
+
 
 
     }

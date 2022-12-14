@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-feature
         android:name="android.hardware.camera"
         android:permissionGroup="android.permission-group.HARDWARE_CONTROLS"
@@ -20,7 +20,9 @@
         android:theme="@style/Theme.Diary">
         <activity
             android:name=".AdvancedReadActivity"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".ReadDiary"
+            >
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

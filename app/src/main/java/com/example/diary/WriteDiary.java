@@ -12,15 +12,21 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Instrumentation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.icu.util.Output;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -137,25 +143,52 @@ public class WriteDiary extends AppCompatActivity {
     }
     public void CloudSave(View view) {
 
-        //This Method will trigger when user click CloudSave Button
-        if(ContextCompat.checkSelfPermission(WriteDiary.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED){
-            String fireBaseFilePath = "images/"+ UUID.randomUUID().toString();
-            //Firestorda , strogedeki dosya ismi tutulur.
-            saveImageCloud(saveImageLocal(bitmap),fireBaseFilePath);
-            saveOnCloud(fireBaseFilePath);
-            status.setText("Saved On Cloud!");
-            status.setVisibility(View.VISIBLE);
-        }
-        else{
-            ActivityCompat.requestPermissions(WriteDiary.this,new String[]{
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-            },1);
-        }
-        Log.d("MOON","Cloud Save Button Clicked");
+       if(getNetwrok()){
+           //This Method will trigger when user click CloudSave Button
+           if(ContextCompat.checkSelfPermission(WriteDiary.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED){
+               String fireBaseFilePath = "images/"+ UUID.randomUUID().toString();
+               //Firestorda , strogedeki dosya ismi tutulur.
+               saveImageCloud(saveImageLocal(bitmap),fireBaseFilePath);
+               saveOnCloud(fireBaseFilePath);
+               status.setText("Saved On Cloud!");
+               status.setVisibility(View.VISIBLE);
+           }
+           else{
+               ActivityCompat.requestPermissions(WriteDiary.this,new String[]{
+                       Manifest.permission.WRITE_EXTERNAL_STORAGE
+               },1);
+           }
+           Log.d("MOON","Cloud Save Button Clicked");
+       }
+
+    else{
+           AlertDialog.Builder builder = new AlertDialog.Builder(WriteDiary.this);
+           builder.setMessage("If you want to upload that diary please open your Wi-Fi").setTitle("Wi-Fİ is OFF");
+           builder.setCancelable(false);
+           // Set the positive button with yes name Lambda OnClickListener method is use of DialogInterface interface.
+           builder.setPositiveButton("OK",null);
+           AlertDialog dialog = builder.create();
+           dialog.show();
+       }
+
+
     }
 
 
+    public boolean getNetwrok(){
+        boolean connected = false;
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            //we are connected to a network
+            connected = true;
+        }
+        else
+            connected = false;
 
+
+        return connected;
+    }
 
 
     public  void saveOnCloud(String fireBaseFilePath){
