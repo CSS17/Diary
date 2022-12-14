@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.diary">
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
-    <uses-feature android:name="android.hardware.camera"
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
         android:permissionGroup="android.permission-group.HARDWARE_CONTROLS"
         android:protectionLevel="normal" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -16,13 +19,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Diary">
         <activity
+            android:name=".AdvancedReadActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".ReadDiary"
             android:exported="false"
-            android:parentActivityName=".Home"/>
+            android:parentActivityName=".Home" />
         <activity
             android:name=".WriteDiary"
             android:exported="false"
-            android:parentActivityName=".Home"/>
+            android:parentActivityName=".Home" />
         <activity
             android:name=".Home"
             android:exported="false" />

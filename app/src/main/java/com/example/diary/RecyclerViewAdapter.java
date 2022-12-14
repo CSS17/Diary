@@ -1,6 +1,9 @@
 package com.example.diary;
 
+import static android.content.Intent.ACTION_VIEW;
+
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +15,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewClass>{
     ArrayList<String> edittxtArray;
@@ -51,6 +60,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 System.out.println(edittxtArray.get(holder.getAdapterPosition())); // Title
                 System.out.println(diaryArray.get(holder.getAdapterPosition()));
                 System.out.println(dateArray.get(holder.getAdapterPosition()));
+
+                Intent intent=new Intent(context.getApplicationContext(),AdvancedReadActivity.class);
+                intent.putExtra("rate", rateArray.get(holder.getAdapterPosition()));
+                intent.putExtra("diary", diaryArray.get(holder.getAdapterPosition()));
+                intent.putExtra("date", dateArray.get(holder.getAdapterPosition()));
+                intent.putExtra("title", edittxtArray.get(holder.getAdapterPosition()));
+                intent.putExtra("bitmap", imageBitMapArray.get(position));
+
+                context.startActivity(intent);
+
 
                 System.out.println("//////////");
                 }
