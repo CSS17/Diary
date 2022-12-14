@@ -67,6 +67,7 @@ public class WriteDiary extends AppCompatActivity {
     private StorageReference storageReference = null;
     FirebaseFirestore db = null;
     DBHelper DB;
+    String filePath;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -109,8 +110,6 @@ public class WriteDiary extends AppCompatActivity {
     }
 
     public void LocalSave(View view) {
-        String photourl = String.valueOf(saveImageLocal(bitmap));
-        System.out.println("Photo url:" + photourl);
 
         String title=titleText.getText().toString();
         String body=contextText.getText().toString();
@@ -118,7 +117,6 @@ public class WriteDiary extends AppCompatActivity {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             myObj = LocalDate.now();
         }
-        System.out.println(myObj); // Display the current date
         String date=myObj.toString();
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
@@ -126,8 +124,8 @@ public class WriteDiary extends AppCompatActivity {
                 rate=(int)v;
             }
         });
-
-        Boolean checkinsertData=DB.InsertData(title,body,rate,date,photourl);
+        System.out.println("LOCAL INSERT PATH " + filePath);
+        Boolean checkinsertData=DB.InsertData(title,body,rate,date,filePath);
         System.out.println(String.valueOf(checkinsertData));
         if(checkinsertData==true){
             Toast.makeText(WriteDiary.this,"Added to SQLite DB",Toast.LENGTH_SHORT);
@@ -250,10 +248,11 @@ public class WriteDiary extends AppCompatActivity {
             images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         }
         ContentValues contentValues = new ContentValues();
-
-        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, UUID.randomUUID().toString() + ".jpeg");
+        filePath = UUID.randomUUID().toString();
+        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, filePath + ".jpeg");
         contentValues.put(MediaStore.Images.Media.MIME_TYPE,"/*");
         Uri uri = contentResolver.insert(images,contentValues);
+        System.out.println("uriiii kayıt ederken" + String.valueOf(uri));
         try {
             OutputStream outputStream = contentResolver.openOutputStream(Objects.requireNonNull(uri));
             bitmap.compress(Bitmap.CompressFormat.JPEG,100,outputStream);

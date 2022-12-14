@@ -10,17 +10,17 @@ import androidx.annotation.Nullable;
 
 public class DBHelper extends SQLiteOpenHelper {
     public DBHelper( Context context) {
-        super(context,"Diary2.db", null, 1);
+        super(context,"Diary3.db", null, 1);
     }
 
     @Override
     public void onCreate(SQLiteDatabase DB) {
-        DB.execSQL("create Table DiaryInfox(title TEXT,body TEXT,rate INTEGER,date TEXT,photourl TEXT)");
+        DB.execSQL("create Table DiaryInfoxx(title TEXT,body TEXT,rate INTEGER,date TEXT,photourl TEXT)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase DB, int i, int i1) {
-        DB.execSQL("drop table if exists DiaryInfox");
+        DB.execSQL("drop table if exists DiaryInfoxx");
     }
 
     public Boolean InsertData(String title,String body,Integer rate,String date,String photourl){
@@ -31,7 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put("rate",rate);
         contentValues.put("date",date);
         contentValues.put("photourl",photourl);
-        long result=DB.insert("DiaryInfox",null,contentValues);
+        long result=DB.insert("DiaryInfoxx",null,contentValues);
         if(result==-1){
             return false;
         }
@@ -42,7 +42,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public Cursor getData(){
         SQLiteDatabase DB=this.getReadableDatabase();
-        Cursor cursor=DB.rawQuery("Select *"+"from DiaryInfox",null);
+        Cursor cursor=DB.rawQuery("Select *"+"from DiaryInfoxx",null);
         return cursor;
     }
 

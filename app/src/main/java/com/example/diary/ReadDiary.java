@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -55,7 +56,6 @@ public class ReadDiary extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DB=new DBHelper(this);
-        fetchLocal();
 
         setContentView(R.layout.activity_read_diary);
         getSupportActionBar().setTitle("Read Your Diaries");
@@ -65,6 +65,8 @@ public class ReadDiary extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(linearLayoutManager);
         fetchAllID();
+        fetchLocal();
+
         //fetchImageLocal();
     }
     public  void fetchAllID(){
@@ -139,7 +141,6 @@ public class ReadDiary extends AppCompatActivity {
 
                 RecyclerViewAdapter adapter = new RecyclerViewAdapter(diaryArray,dateArray,edittxtArray,imageBitMapArray ,rateArray,ReadDiary.this);
                 recyclerView.setAdapter(adapter);
-                imageView.setImageBitmap(bmp);
 
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -149,11 +150,48 @@ public class ReadDiary extends AppCompatActivity {
             }
         });}
     public void fetchLocal(){
-        System.out.println(DB.getData());
+        Cursor cursorCourses = DB.getData();
+        System.out.println("LOCALL////////////////");
+        if (cursorCourses.moveToFirst()) {
+            do {
+                // on below line we are adding the data from cursor to our array list.
 
+
+                System.out.println(cursorCourses.getString(0));
+                String title = cursorCourses.getString(0);
+                String diary = cursorCourses.getString(1);
+                String rate =  cursorCourses.getString(2);
+                String date =  cursorCourses.getString(3);
+                String photourl = cursorCourses.getString(4);
+
+                //File imgFile = new File("/storage/emulated/0/Pictures/ne.jpeg");
+                System.out.println("Fetching photo url " + photourl);
+                File imgFile = new File("/storage/emulated/0/Pictures/"+photourl+".jpeg");
+
+
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                imageView.setImageBitmap(myBitmap);
+
+                System.out.println(photourl);
+                edittxtArray.add(title);
+                rateArray.add(rate);
+                diaryArray.add(diary);
+                dateArray.add(date);
+                imageBitMapArray.add(myBitmap);
+                RecyclerViewAdapter adapter = new RecyclerViewAdapter(diaryArray,dateArray,edittxtArray,imageBitMapArray ,rateArray,ReadDiary.this);
+                recyclerView.setAdapter(adapter);
+
+            } while (cursorCourses.moveToNext());
+            // moving our cursor to next.
+        }
+        // at last closing our cursor
+        // and returning our array list.
+        cursorCourses.close();
+
+        System.out.println("LOCALLEND////////////////");
     }
     public void fetchImageLocal(){
-        String path = "/storage/emulated/0/Pictures/title.jpg";
+        String path = "";
 
         File imgFile = new File(path);
         if(imgFile.exists())
