@@ -8,12 +8,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.Adapter;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -31,12 +28,14 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ReadDiary extends AppCompatActivity {
     FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
-    ArrayList<String> edittxtArray=new ArrayList<>();//imageviews
+    ArrayList<String> edittxtArray=new ArrayList<>();//Title
     ArrayList<Bitmap> imageBitMapArray=new ArrayList<>();//edittext
+    ArrayList<String> rateArray=new ArrayList<String>();//Rating
+    ArrayList<String> diaryArray=new ArrayList<String>();//Diary
+    ArrayList<String> dateArray = new ArrayList<String>(); // Date
 
     ArrayList<String> firebaseDiaryIds=new ArrayList<>();
     ArrayList<String> firebaseDiaryRatings=new ArrayList<>();
@@ -44,11 +43,20 @@ public class ReadDiary extends AppCompatActivity {
     ArrayList<String> firebaseDiaryTitle=new ArrayList<>();
     ArrayList<String> firebaseDiaryPhotoUrl=new ArrayList<>();
 
+    String tempRate;
+    String  tempDiary;
+    String  tempDate;
+
     ImageView imageView;
     RecyclerView recyclerView;
+    DBHelper DB;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DB=new DBHelper(this);
+        fetchLocal();
+
         setContentView(R.layout.activity_read_diary);
         getSupportActionBar().setTitle("Read Your Diaries");
         imageView=(ImageView)findViewById(R.id.fetch_image);
@@ -93,7 +101,11 @@ public class ReadDiary extends AppCompatActivity {
                         firebaseDiaryRatings.add( String.valueOf(document.getData().get("rating")));
                         firebaseDiary.add( String.valueOf(document.getData().get("diary")));
                         firebaseDiaryPhotoUrl.add(String.valueOf(document.getData().get("photoUrl")));
-                        fetchImageCloud(String.valueOf(document.getData().get("photoUrl")),String.valueOf(document.getData().get("title")));
+                        tempRate = String.valueOf(document.getData().get("rating"));
+                        tempDiary = String.valueOf(document.getData().get("diary"));
+                        tempDate = String.valueOf(document.getData().get("date"));
+
+                        fetchImageCloud(tempDate,tempDiary,tempRate,String.valueOf(document.getData().get("photoUrl")),String.valueOf(document.getData().get("title")),String.valueOf(document.getData().get("rate")));
                     } else {
                         System.out.println("document yok");
                         Log.d("TAG", "No such document");
@@ -109,11 +121,10 @@ public class ReadDiary extends AppCompatActivity {
             }
         });
     }
-    public void fetchImageCloud(String photourl, String title){
+    public void fetchImageCloud(String tempDate,String tempDiary,String tempRate,String photourl, String title,String rate){
         // Create a storage reference from our app
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         StorageReference photoReference= storageReference.child(photourl);
-
         final long ONE_MEGABYTE = 1024 * 1024;
         photoReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
             @Override
@@ -122,11 +133,12 @@ public class ReadDiary extends AppCompatActivity {
                 //Load arrarys
                 imageBitMapArray.add(bmp);
                 edittxtArray.add(title);
+                rateArray.add(tempRate);
+                diaryArray.add(tempDiary);
+                dateArray.add(tempDate);
 
-                RecyclerViewAdapter adapter = new RecyclerViewAdapter(edittxtArray,imageBitMapArray ,ReadDiary.this);
+                RecyclerViewAdapter adapter = new RecyclerViewAdapter(diaryArray,dateArray,edittxtArray,imageBitMapArray ,rateArray,ReadDiary.this);
                 recyclerView.setAdapter(adapter);
-
-
                 imageView.setImageBitmap(bmp);
 
             }
@@ -136,6 +148,10 @@ public class ReadDiary extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "No Such file or Path found!!", Toast.LENGTH_LONG).show();
             }
         });}
+    public void fetchLocal(){
+        System.out.println(DB.getData());
+
+    }
     public void fetchImageLocal(){
         String path = "/storage/emulated/0/Pictures/title.jpg";
 

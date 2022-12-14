@@ -162,10 +162,17 @@ public class WriteDiary extends AppCompatActivity {
 
     public  void saveOnCloud(String fireBaseFilePath){
         // Create a new user with a first and last name
+        LocalDate myObj = null; // Create a date object
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            myObj = LocalDate.now();
+        }
+        String date=myObj.toString();
+
         Map<String, Object> user = new HashMap<>();
         user.put("title", String.valueOf(titleText.getText()));
         user.put("diary", String.valueOf(contextText.getText()));
         user.put("rating", rate);
+        user.put("date",date);
         user.put("photoUrl",fireBaseFilePath.split("images/")[1]);
 
 // Add a new document with a generated ID
@@ -243,7 +250,8 @@ public class WriteDiary extends AppCompatActivity {
             images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         }
         ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, "q" + ".jpeg");
+
+        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, UUID.randomUUID().toString() + ".jpeg");
         contentValues.put(MediaStore.Images.Media.MIME_TYPE,"/*");
         Uri uri = contentResolver.insert(images,contentValues);
         try {

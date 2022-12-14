@@ -15,12 +15,18 @@ import java.util.ArrayList;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewClass>{
     ArrayList<String> edittxtArray;
+    ArrayList<String> rateArray;
+    ArrayList<String> diaryArray;
+    ArrayList<String> dateArray;
 
     ArrayList<Bitmap> imageBitMapArray;
     Context context;
-    public RecyclerViewAdapter(ArrayList<String> edittxtArray , ArrayList<Bitmap> imageBitMapArray , Context context) {
+    public RecyclerViewAdapter(ArrayList<String> diaryArray,ArrayList<String> dateArray,ArrayList<String> edittxtArray , ArrayList<Bitmap> imageBitMapArray  ,ArrayList<String> rateArray,Context context) {
+        this.diaryArray = diaryArray;
+        this.dateArray = dateArray;
         this.edittxtArray = edittxtArray;
         this.imageBitMapArray = imageBitMapArray;
+        this.rateArray = rateArray;
         this.context=context;
     }
 
@@ -40,9 +46,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                System.out.println("CLİCKED ///////");
+                System.out.println(rateArray.get(holder.getAdapterPosition())); // Rate
+                System.out.println(edittxtArray.get(holder.getAdapterPosition())); // Title
+                System.out.println(diaryArray.get(holder.getAdapterPosition()));
+                System.out.println(dateArray.get(holder.getAdapterPosition()));
 
-                Toast.makeText(context,"Item Clicked" + edittxtArray.get(holder.getAdapterPosition())+"" ,Toast.LENGTH_LONG).show();
-            }
+                System.out.println("//////////");
+                }
 
         });
     }
