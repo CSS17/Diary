@@ -52,7 +52,7 @@
         android:id="@+id/textView9"
         android:layout_width="122dp"
         android:layout_height="36dp"
-        android:text="Last Uploaded Photo"
+        android:text=""
         android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@+id/recyclerView"
         app:layout_constraintEnd_toEndOf="parent"

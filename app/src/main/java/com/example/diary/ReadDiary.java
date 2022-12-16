@@ -170,7 +170,7 @@ public class ReadDiary extends AppCompatActivity {
 
 
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                imageView.setImageBitmap(myBitmap);
+                //imageView.setImageBitmap(myBitmap);
 
                 System.out.println(photourl);
                 edittxtArray.add(title);
